@@ -29,7 +29,7 @@ st.markdown("Motor Vehicle Collisions 💥🚗 is one of the leading causes of d
 st.markdown("This web app was built to allow users to map past motor vehicle collision events in NYC, visualize accident-prone areas on the map, investigate the temporal pattern of collisions "
             "and examine what factors might be correlated with vehicle collisions.")
 st.markdown("Dataset is motor vehicle collision events reported by NYPD from 1/7/2012 to 2/5/2021")
-
+st.markdown("App may take a while to run the first time.")
 
 
 @st.cache(persist=True)
@@ -130,48 +130,7 @@ st.write(pdk.Deck(
 ))
 
 
-#Animation Visualization of Temporal and Spatial Pattern of Collisions in a given day
-st.header("Motor Vehical Collisions Temporal & Spatial Pattern Animation")
-st.markdown("This animation shows yearly 24-hour spatial pattern of NYC motor vehicle collisions from 2013 to 2020. You can change the hexagon radius for your need")
-df2 = df[['year', 'hour', 'latitude', 'longitude']].dropna(how = 'any')
-layer = pdk.Layer(
-        "HexagonLayer",
-        data=df2,
-        get_position=["longitude", "latitude"],
-        auto_highlight=True,
-        radius=50,
-        extruded=True,
-        pickable=True,
-        elevation_scale=4,
-        elevation_range=[0, 500],
-        )
 
-
-# Create the deck.gl map
-r = pdk.Deck(
-    layers = [layer],
-    initial_view_state={
-        "latitude": midpoint[0],
-        "longitude": midpoint[1],
-        "zoom": 11,
-        "pitch": 50,
-    },
-    map_style="mapbox://styles/mapbox/streets-v10",
-    )
-
-# Create a subheading to display current hour
-subheading = st.subheader("")
-# Render the deck.gl map in the Streamlit app as a Pydeck chart 
-map = st.pydeck_chart(r)
-# Update the maps and the subheading each hour
-for i in range(2013, 2020, 1):
-    temp = df2[df2['year'] == i]
-    for j in range(0, 24, 1):
-        layer.data = temp[temp['hour'] == j]
-        r.update()
-        map.pydeck_chart(r)
-        subheading.subheader("Vehicle collisions between %i:00 and %i:00 in %i" % (j, (j + 1) % 24, i))
-        time.sleep(0.5)
 
 
 
@@ -303,7 +262,48 @@ else:
     fig = plot_factor(select_factor)
     st.write(fig)
     
+#Animation Visualization of Temporal and Spatial Pattern of Collisions in a given day
+st.header("Motor Vehical Collisions Temporal & Spatial Pattern Animation")
+st.markdown("This animation shows yearly 24-hour spatial pattern of NYC motor vehicle collisions from 2013 to 2020. You can change the hexagon radius for your need")
+df2 = df[['year', 'hour', 'latitude', 'longitude']].dropna(how = 'any')
+layer = pdk.Layer(
+        "HexagonLayer",
+        data=df2,
+        get_position=["longitude", "latitude"],
+        auto_highlight=True,
+        radius=50,
+        extruded=True,
+        pickable=True,
+        elevation_scale=4,
+        elevation_range=[0, 500],
+        )
 
+
+# Create the deck.gl map
+r = pdk.Deck(
+    layers = [layer],
+    initial_view_state={
+        "latitude": midpoint[0],
+        "longitude": midpoint[1],
+        "zoom": 11,
+        "pitch": 50,
+    },
+    map_style="mapbox://styles/mapbox/streets-v10",
+    )
+
+# Create a subheading to display current hour
+subheading = st.subheader("")
+# Render the deck.gl map in the Streamlit app as a Pydeck chart 
+map = st.pydeck_chart(r)
+# Update the maps and the subheading each hour
+for i in range(2013, 2020, 1):
+    temp = df2[df2['year'] == i]
+    for j in range(0, 24, 1):
+        layer.data = temp[temp['hour'] == j]
+        r.update()
+        map.pydeck_chart(r)
+        subheading.subheader("Vehicle collisions between %i:00 and %i:00 in %i" % (j, (j + 1) % 24, i))
+        time.sleep(0.5)
 
     
     
